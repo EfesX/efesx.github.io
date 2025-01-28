@@ -13,17 +13,24 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            overflow: hidden;
         }
         .game-container {
             background-color: #bbada0;
             padding: 10px;
             border-radius: 10px;
+            width: 90vmin; /* Размер поля зависит от минимального размера экрана */
+            height: 90vmin;
+            max-width: 500px; /* Ограничиваем максимальный размер */
+            max-height: 500px;
         }
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(4, 100px);
-            grid-template-rows: repeat(4, 100px);
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
             gap: 10px;
+            width: 100%;
+            height: 100%;
         }
         .grid-cell {
             background-color: #cdc1b4;
@@ -31,7 +38,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 5vmin; /* Размер текста адаптируется */
             font-weight: bold;
             color: #776e65;
         }
@@ -43,7 +50,7 @@
             align-items: center;
             border-radius: 5px;
             background-color: #eee4da;
-            font-size: 24px;
+            font-size: 5vmin; /* Размер текста адаптируется */
             font-weight: bold;
             color: #776e65;
         }
@@ -72,6 +79,7 @@
         const gridSize = 4;
         let grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(0));
 
+        // Инициализация игрового поля
         function initializeGrid() {
             for (let i = 0; i < gridSize; i++) {
                 for (let j = 0; j < gridSize; j++) {
@@ -85,6 +93,7 @@
             updateGrid();
         }
 
+        // Добавление случайной плитки
         function addRandomTile() {
             const emptyCells = [];
             for (let i = 0; i < gridSize; i++) {
@@ -100,6 +109,7 @@
             }
         }
 
+        // Обновление отрисовки поля
         function updateGrid() {
             const cells = document.querySelectorAll('.grid-cell');
             cells.forEach((cell, index) => {
@@ -110,6 +120,7 @@
             });
         }
 
+        // Поворот сетки
         function rotateGrid(clockwise = true) {
             const newGrid = Array.from({ length: gridSize }, () => Array(gridSize).fill(0));
             for (let i = 0; i < gridSize; i++) {
@@ -124,6 +135,7 @@
             grid = newGrid;
         }
 
+        // Движение влево
         function moveLeft() {
             let moved = false;
             for (let i = 0; i < gridSize; i++) {
@@ -147,6 +159,7 @@
             return moved;
         }
 
+        // Основная функция движения
         function move(direction) {
             let moved = false;
             if (direction === 'left') {
@@ -172,10 +185,42 @@
             }
         }
 
+        // Сравнение массивов
         function arraysEqual(a, b) {
             return a.length === b.length && a.every((val, index) => val === b[index]);
         }
 
+        // Обработка свайпов
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        document.addEventListener('touchstart', (event) => {
+            touchStartX = event.touches[0].clientX;
+            touchStartY = event.touches[0].clientY;
+        });
+
+        document.addEventListener('touchend', (event) => {
+            const touchEndX = event.changedTouches[0].clientX;
+            const touchEndY = event.changedTouches[0].clientY;
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 0) {
+                    move('right'); // Свайп вправо
+                } else {
+                    move('left'); // Свайп влево
+                }
+            } else {
+                if (diffY > 0) {
+                    move('down'); // Свайп вниз
+                } else {
+                    move('up'); // Свайп вверх
+                }
+            }
+        });
+
+        // Обработка клавиш (для тестирования на ПК)
         document.addEventListener('keydown', (event) => {
             if (event.key === 'ArrowLeft') {
                 move('left');
